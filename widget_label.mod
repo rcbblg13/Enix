@@ -1,5 +1,5 @@
 ENTITY/pt,lb,v_cs,origin_pt,xdir_pt,ydir_pt,base_cs
-NUMBER/m_sec,resp,cnt,n_orig,label_color,text_size,r_style,r_size,r_color,custom_size
+NUMBER/m_sec,resp,cnt,n_orig,label_color,text_size,r_style,r_size,r_color,custom_size,int_part,dec_sel
 STRING/t1(80),t2(80),t3(80)
 IFTHEN/&ACTPRT == 1
   MESSG/'LUTFEN BIR WIDGET ACIN!'
@@ -62,7 +62,35 @@ ENDIF
 &CSIZE=text_size
 JUMP/L_STYLE:
 L_CUSTOM:
-custom_size=INPUT/'OZEL YAZI BOYUTU GIRIN (ORN: 13.5)'
+CHOOSE/'OZEL TAM BOYUT','IPTAL','1','2','3','4','5','6','7','8','9','10',$
+'11','12','13','14','15',int_part
+IFTHEN/int_part == 5
+  JUMP/L_SIZE:
+ENDIF
+CHOOSE/'ONDALIK HANE','0','.1','.2','.3','.4','.5','.6','.7','.8','.9',dec_sel
+IFTHEN/dec_sel < 5
+  JUMP/L_STYLE:
+ELSEIF/dec_sel == 5
+  custom_size=int_part-5
+ELSEIF/dec_sel == 6
+  custom_size=(int_part-5)+0.1
+ELSEIF/dec_sel == 7
+  custom_size=(int_part-5)+0.2
+ELSEIF/dec_sel == 8
+  custom_size=(int_part-5)+0.3
+ELSEIF/dec_sel == 9
+  custom_size=(int_part-5)+0.4
+ELSEIF/dec_sel == 10
+  custom_size=(int_part-5)+0.5
+ELSEIF/dec_sel == 11
+  custom_size=(int_part-5)+0.6
+ELSEIF/dec_sel == 12
+  custom_size=(int_part-5)+0.7
+ELSEIF/dec_sel == 13
+  custom_size=(int_part-5)+0.8
+ELSEIF/dec_sel == 14
+  custom_size=(int_part-5)+0.9
+ENDIF
 IFTHEN/custom_size > 0
   text_size=custom_size
   &CSIZE=text_size
