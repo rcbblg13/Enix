@@ -1,5 +1,6 @@
 ENTITY/pt,lb,v_cs,origin_pt,xdir_pt,ydir_pt,base_cs
-NUMBER/m_sec,resp,cnt,n_orig,label_color,text_size,r_style,r_size,r_color,custom_size,int_part,dec_sel,int_hi_sel
+NUMBER/m_sec,resp,cnt,n_orig,label_color,text_size,r_style,r_size,r_color
+NUMBER/custom_size,int_part,dec_sel,int_hi_sel
 STRING/t1(80),t2(80),t3(80)
 IFTHEN/&ACTPRT == 1
   MESSG/'LUTFEN BIR WIDGET ACIN!'
@@ -57,24 +58,25 @@ ELSEIF/r_size == 16
 ELSEIF/r_size == 17
   text_size=20
 ELSEIF/r_size == 18
-  JUMP/L_CUSTOM:
+  JUMP/LCUS:
 ENDIF
 &CSIZE=text_size
 JUMP/L_STYLE:
-L_CUSTOM:
-CHOOSE/'OZEL TAM BOYUT','IPTAL','1','2','3','4','5','6','7','8','9','10-15',int_part
+LCUS:
+CHOOSE/'OZEL TAM BOYUT','IPTAL','1','2','3','4','5','6','7','8','9',$
+'10-15',int_part
 IFTHEN/int_part == 5
   JUMP/L_SIZE:
 ELSEIF/int_part == 15
-  JUMP/L_CUSTOM_HI:
+  JUMP/LCHI:
 ELSE
   custom_size=int_part-5
-  JUMP/L_CUSTOM_DEC:
+  JUMP/LCDE:
 ENDIF
-L_CUSTOM_HI:
+LCHI:
 CHOOSE/'10-15 SEC','IPTAL','10','11','12','13','14','15',int_hi_sel
 IFTHEN/int_hi_sel == 5
-  JUMP/L_CUSTOM:
+  JUMP/LCUS:
 ELSEIF/int_hi_sel == 6
   custom_size=10
 ELSEIF/int_hi_sel == 7
@@ -88,7 +90,7 @@ ELSEIF/int_hi_sel == 10
 ELSEIF/int_hi_sel == 11
   custom_size=15
 ENDIF
-L_CUSTOM_DEC:
+LCDE:
 CHOOSE/'ONDALIK HANE','0','.1','.2','.3','.4','.5','.6','.7','.8','.9',dec_sel
 IFTHEN/dec_sel < 5
   JUMP/L_STYLE:
