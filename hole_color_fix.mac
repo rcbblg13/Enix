@@ -1,0 +1,156 @@
+$$ Renk degistirme - mask/71 sonra mask/16, edge tip5 ile cap
+entity/box(10000),fc1(2),tmpfc,edgs(100)
+number/col,i,j,k,n,m,tp,sel_dia,cur_dia,diff,tol,cnum,found,is_face
+string/date1(132),date2(132),date3(132),date4(132)
+
+date1=substr(date,1,2)
+date2=substr(date,5,2)
+date3=substr(date,9,2)
+date4=date3+date1+date2
+if/valf(date4)>270303,jump/ARCibi:
+
+tol     = 0.1
+sel_dia = 0
+cnum    = 36
+
+$$====================================================
+$$ ANA ARAYUZ
+$$====================================================
+l10:
+  $$* OK/BACK ile devam, CANCEL ile cik
+  param/'DELIK RENKLENDIRME',$
+    'Delik capi',sel_dia,$
+    'Renk kodu',cnum,$
+    respond
+  jump/lback:,end:,lback:,respond
+
+lback:
+  if/sel_dia>0,jump/l10r:
+  sel_dia = 0
+  jump/l10r:
+
+l10r:
+  col = cnum
+
+$$====================================================
+$$ 1) ONCE SOLID/FACE SECIMI (mask/71)
+$$====================================================
+lsec:
+  mask/71
+lsec2:
+  ident/'Istedigin solid veya yuzeyleri sec',box,cnt,num,resp
+  jump/lsec2:,l10:,,,resp
+
+$$* Manuel cap varsa direkt isle
+  if/sel_dia>0,jump/lrun:
+
+$$====================================================
+$$ 2) CAP REFERANSTAN AL (mask/16)
+$$====================================================
+lgetdia:
+  sel_dia = 0
+  mask/16
+l15:
+  ident/'Referans silindirik yuzey secin',fc1,cnt,m,resp
+  jump/l15:,l10:,,,resp
+
+  m = &soldat(fc1(1),edge,iferr,l15b:)
+  edgs = soledg/fc1(1),cnt,m,iferr,l15b:
+  k = 0
+l15a:
+  k = k + 1
+  if/k>m,jump/l15b:
+  tp = &type(edgs(k))
+  if/tp<>5,jump/l15a:
+  sel_dia = &radius(edgs(k))
+  sel_dia = sel_dia + sel_dia
+  delete/edgs(1..m)
+  jump/l15c:
+
+l15b:
+  messg/'Cap alinamadi, tekrar secin'
+  jump/l15:
+
+l15c:
+  if/sel_dia>0,jump/lrun:
+  messg/'Cap alinamadi, tekrar secin'
+  jump/l15:
+
+$$====================================================
+$$ 3) RENKLENDIRME
+$$====================================================
+lrun:
+  do/lend:,i,1,num
+
+  tmpfc = box(i)
+  found = 0
+  is_face = 0
+
+  tp = &type(tmpfc)
+  if/tp<>16,jump/lgetf:
+  fc1(2) = tmpfc
+  is_face = 1
+  jump/lfacechk:
+
+lgetf:
+  n = &soldat(tmpfc,face,iferr,lskip:)
+  j = 0
+
+lfacelp:
+  j = j + 1
+  if/j>n,jump/ldone:
+  fc1(2) = solent/tmpfc,face,j,iferr,lfacelp:
+
+lfacechk:
+  tp = &type(fc1(2))
+  if/tp<>16,jump/lnextface:
+
+  m = &soldat(fc1(2),edge,iferr,lnextface:)
+  edgs = soledg/fc1(2),cnt,m,iferr,lnextface:
+  k = 0
+
+ledglp:
+  k = k + 1
+  if/k>m,jump/ldelge:
+  tp = &type(edgs(k))
+  if/tp<>5,jump/ledglp:
+
+  cur_dia = &radius(edgs(k))
+  cur_dia = cur_dia + cur_dia
+  delete/edgs(1..m)
+
+  diff = cur_dia - sel_dia
+  if/diff<0,jump/ldabs:
+  jump/ldchk:
+
+ldabs:
+  diff = 0 - diff
+
+ldchk:
+  if/diff>tol,jump/lnextface:
+
+  &color(fc1(2)) = col
+  found = 1
+
+lnextface:
+  if/is_face>0,jump/ldone:
+  jump/lfacelp:
+
+ldelge:
+  delete/edgs(1..m)
+  jump/lnextface:
+
+ldone:
+  if/found<1,jump/lskip:
+
+lskip:
+lend:
+  jump/l10:
+
+end:
+halt
+
+ARCibi:
+print/'              '
+jump/end:
+HALT
